@@ -40,8 +40,7 @@
                                 <td> <a class="btn btn-success"
                                         href="{{ route('tokens.details', ['id' => $type->id]) }}">Details</a></td>
                                 <td>
-                                    <button type="button" id='token {{$type->token_no}}' class='btn btn-success'
-                                        >CALL</button>
+                                   
 
                                 </td>
                             </tr>

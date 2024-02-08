@@ -22,6 +22,7 @@ class UserRoleController extends Controller
             ->select(
                 'users.id',
                 'users.name',
+                'users.email',
                 'roles.name as role'
             );
             $dataTable= DataTables::of($query)

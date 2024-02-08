@@ -17,7 +17,9 @@
                         <thead>
                             <tr>
                                 <th>User</th>
+                                <th>Email</th>
                                 <th>Roles</th>
+                                
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -61,39 +63,71 @@
     $(document).ready(function () {
         var isSelectCreated = false;
         //var roleData=createSelect();
-      var table=  $('#user-roles-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{ route('user-roles.searchableIndex') }}",
-       
-            columns: [
+        var table = $('#user-roles-table').DataTable(
+            {
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('user-roles.searchableIndex') }}",
 
-                { data: 'name', name: 'name' },
-                { data: 'role', name: 'role' },
-                //    {data:'id',render:function(){return '<button class="btn btn-success">Assign</button>' }},
-                { data: "id", name:'Actionable',
-                    render: function (data) {
-                        if (!isSelectCreated) {
-                            createSelect();
-                            isSelectCreated = true;
-                        }
-                        // if(roleData!=undefined){
-                        //  createSelect(data);
-                        // }
-                        return '<form id="myForm" method="POST" action="{{route("user-roles.assign",["userId"=>$user->id])}}"> @csrf <select class="form-control" id="dropdown" name="roleName">' +
+                columns: [
 
-                            '</select><button type="submit" class="btn btn-warning">Assign Role</button></form>';
-                            
+                    { data: 'name', name: 'name' },
+                    {data:'email',name:'email',
+                        render:function(data){
+return '<a href="/profile/1" class="btn btn-link">'+data+'</a>';
                     }
                 },
-                           ]
-        });
+                    { data: 'role', name: 'role' },
+                    //    {data:'id',render:function(){return '<button class="btn btn-success">Assign</button>' }},
+                    {
+                        data: "id", name: 'ActionableA',
+                        render: function (data) {
+                           
+                            const uId = data;
+                           // var createLink=viewDetailLink(data);
+                            if (!isSelectCreated) {
+                                isSelectCreated = true;
+                                return createForm(uId, false);
+
+                            } else {
+                                return  createForm(uId, true);
+                            }
+
+                            //return form;
+                        }
+                    }
+                    
+                   
+                ],
+            
+            });
         table.column('columnname:name').search("keyword").draw(function (params) {
             alert(params);
         });
-        table.on('search.dt', function() {
-            isSelectCreated=false;
+        table.on('search.dt', function () {
+            isSelectCreated = false;
+
+        });
+
+        function viewDetailLink(data) {
             
+            return '<button>Details</button>'
+        }
+        // Event listener for row selection
+        $('#user-roles-table').on('click', 'tbody tr', function () {
+            
+            var selectedData = table.row(this).data();
+
+            // Perform your action with the selected data
+            console.log('Selected Row Data:', selectedData);
+        });
+
+        // Event listener for DataTables 'select' event
+        table.on('select', function (e, dt, type, indexes) {
+            if (type === 'row') {
+                // Row selected
+                console.log('Row Selected:', indexes);
+            }
         });
     });
     // var assignButton= function(data) {
@@ -120,31 +154,72 @@
             }
         });
     }
+    function createForm(id, isSelectCreated) {
+        const uId = id;
+        var form = document.createElement('form');
+        form.id = 'myForm';
+        form.method = 'POST';
+        form.action = ''; // The action will be set dynamically later
+
+        // Create the CSRF token input field
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}'; // Use Blade to get the CSRF token
+        form.appendChild(csrfInput);
+
+        // Create the select element
+        var select = document.createElement('select');
+        select.className = 'form-control';
+        select.id = 'dropdown';
+        select.name = 'role';
+        // Add your select options here if needed
+
+        // Create the submit button
+        var submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.className = 'btn btn-warning';
+        submitButton.textContent = 'Assign Role';
+
+        // Append select and button to the form
+        form.appendChild(select);
+        form.appendChild(submitButton);
+
+        // Set the action attribute dynamically
+        form.action = '{{ route("user-roles.assign", ["userId" => ":userId"]) }}'.replace(':userId', uId);
+        if (!isSelectCreated) {
+            createSelect();
+            isSelectCreated = true;
+        }
+        // Now you can use the 'form' variable as needed
+    //    console.log(form.outerHTML);
+        return form.outerHTML;
+    }
 
     $(document).ready(function () {
-    // Attach a submit event handler to the form with the ID 'myForm'
-    $('#myForm').submit(function (e) {
-        // Prevent the default form submission behavior
-        e.preventDefault();
+        // Attach a submit event handler to the form with the ID 'myForm'
+        $('#myForm').submit(function (e) {
+            // Prevent the default form submission behavior
+            e.preventDefault();
 
-        // Serialize the form data
-        var formData = $(this).serialize();
+            // Serialize the form data
+            var formData = $(this).serialize();
 
-        // Perform an AJAX request to submit the form
-        $.ajax({
-            type: $(this).attr('method'),
-            url: $(this).attr('action'),
-            data: formData,
-            success: function (response) {
-                // Handle the success response from the server
-                console.log(response);
-            },
-            error: function (error) {
-                // Handle the error response from the server
-                console.log(error);
-            }
+            // Perform an AJAX request to submit the form
+            $.ajax({
+                type: $(this).attr('method'),
+                url: $(this).attr('action'),
+                data: formData,
+                success: function (response) {
+                    // Handle the success response from the server
+                    console.log(response);
+                },
+                error: function (error) {
+                    // Handle the error response from the server
+                    console.log(error);
+                }
+            });
         });
     });
-});
 
 </script>

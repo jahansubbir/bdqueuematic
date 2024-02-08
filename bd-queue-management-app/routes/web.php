@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\BoothController;
 use App\Http\Controllers\BoothTypeController;
 use App\Http\Controllers\CounterController;
@@ -99,6 +100,10 @@ Route::controller(UserRoleController::class)->group(function(){
     Route::get('/roles',[UserRoleController::class,'get_roles'])->name('user-roles.roles')->middleware('auth')->middleware('checkRole:admin');
 
 
+});
+Route::controller(AdminDashboardController::class)->group(function(){
+    Route::get('/reports',[AdminDashboardController::class,'reports'])->name('admin.reports')->middleware('auth')->middleware('checkRole:admin');
+    Route::post('/reports',[AdminDashboardController::class,'getTokenDump'])->name('admin.report')->middleware('auth')->middleware('checkRole:admin');
 });
 
 

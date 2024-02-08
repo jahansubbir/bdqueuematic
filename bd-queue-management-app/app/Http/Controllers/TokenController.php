@@ -361,12 +361,18 @@ class TokenController extends Controller
 
         $minutesDifference = 120;
 
-        $existingCount = DB::table('tokens')
-            ->join('token_details', 'tokens.id', '=', 'token_details.token_id')
-            ->whereIn('be_no', $request->be_no)
-            ->orWhereIn('bl_no', $request->bl_no)
-            ->whereRaw('TIMESTAMPDIFF(MINUTE, tokens.created_at, NOW()) < ?', [$minutesDifference])
-            ->count();
+        $blNoValues=$request->bl_no;
+        $beNoValues=$request->be_no;
+        $existingCount =$result = DB::table('tokens')
+        
+        ->join('token_details', 'tokens.id', '=', 'token_details.token_id')
+        ->where(function ($query) use ($blNoValues, $beNoValues) {
+            $query->whereIn('token_details.bl_no', $blNoValues)
+                  ->orWhereIn('token_details.be_no', $beNoValues);
+        })
+        ->whereRaw('TIMESTAMPDIFF(MINUTE, tokens.created_at, NOW()) < ?', [120])
+        ->count();
+
 
         if ($existingCount > 0) {
             $redundant = true;

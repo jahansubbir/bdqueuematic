@@ -62,6 +62,10 @@
                         <x-dropdown-link :href="route('user-roles.index')">
                             User Roles
                         </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.reports')">
+                            Report
+                        </x-dropdown-link>
+                        
                         @endif
 
                         <!-- Authentication -->

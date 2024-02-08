@@ -67,7 +67,7 @@
     .filter(voice => voice.lang === "en-GB");
     //alert(voices.length);
     utterance.voice=voices[1];
-    window.speechSynthesis.speak(utterance);
+ //   window.speechSynthesis.speak(utterance);
 
 });
         
